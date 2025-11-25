@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\TweetController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
@@ -13,7 +14,18 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RepostController;
 
-Route::get('/', function () {
+Route::get('/', function (Request $request) {
+    // If the incoming link contains LMS-style query params, send guests to login directly
+    if ($request->query('classId') || $request->query('assignmentId') || $request->query('submissionId')) {
+        return redirect()->route('login');
+    }
+
+    // If user already authenticated, send to main tweets feed
+    if (auth()->check()) {
+        return redirect()->route('tweets.index');
+    }
+
+    // Default welcome page for guests without LMS params
     return view('welcome');
 });
 
